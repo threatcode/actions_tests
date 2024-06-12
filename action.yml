@@ -1,8 +1,0 @@
-name: 'Test'
-description: 'Test'
-runs:
-  using: "composite"
-  steps:
-    - name: Run goodbye.sh
-      run: echo '${{ toJSON(github) }}'
-      shell: bash
