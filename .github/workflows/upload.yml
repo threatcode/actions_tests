@@ -1,0 +1,20 @@
+name: upload
+
+on:
+  workflow_dispatch:
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+    - name: create file
+      run: |
+        echo "foo" > artifact.txt
+    - name: upload
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: artifact
+        path: ./artifact.txt
+    - name: adding markdown
+      run: echo '### hello <blink>world</blink><div class="color-fg-muted">classed</div><script>alert(document.domain)</script>! 🚀' >> $github_step_summary

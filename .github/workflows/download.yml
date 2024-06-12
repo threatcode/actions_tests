@@ -1,0 +1,29 @@
+name: Download
+on:
+  workflow_run:
+    workflows: ["Upload"]
+    types:
+      - completed
+jobs:
+  download-job:
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+      actions: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: download pr artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: ${{ github.event.workflow_run.workflow_id }}
+          run_id: ${{ github.event.workflow_run.id }}
+          name: artifact
+      # Save PR id to output
+      - name: save artifact data
+        id: artifact
+        run: echo "::set-output name=id::$(<artifact.txt)"
+      - name: usage artifact
+        id: deploy
+        run: |
+          echo ${{ steps.artifact.outputs.id }}

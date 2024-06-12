@@ -1,0 +1,17 @@
+name: Workflow Run
+on:
+  workflow_run:
+    workflows: [ debug ]
+    types: [ completed ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: test
+        run: |
+          echo ${{ github.ref }}
+          echo ${{ github.ref_name }}
+          cat <<"EOF"
+          ${{ toJSON(github.event) }}
+          EOF

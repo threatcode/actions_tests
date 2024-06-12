@@ -1,0 +1,16 @@
+name: CodeQL
+
+on:
+  workflow_dispatch:
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: CodeQL
+        uses: github/codeql-actions@master
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sarif-output: codeql-actions.sarif
+          suite: actions-all
+          sarif_file: codeql-actions.sarif
