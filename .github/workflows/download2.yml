@@ -1,0 +1,27 @@
+name: Download Artifact on dispatch
+
+on:
+  workflow_dispatch:
+
+permissions:
+  actions: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore previous run data
+        uses: dawidd6/action-download-artifact@71072fbb1229e1317f1a8de6b04206afb461bd67 # v3.1.2
+        with:
+          name: data
+          if_no_artifact_found: ignore
+          workflow_conclusion: 'success'
+          search_artifacts: true
+          workflow_search: true
+      - run: cat packages.json
+      - name: Persist data
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3  # v4.3.1
+        if: ${{ !cancelled() }}
+        with:
+          name: data
+          path: milestone-data.json

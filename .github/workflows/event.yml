@@ -1,0 +1,201 @@
+name: Event
+
+on:
+  workflow_dispatch:
+
+jobs:
+  if-tests:
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Test 1 
+        if: 1 == 2
+        run: echo "Test 1 should not be printed"
+      - name: Test 2 
+        if: |
+          ${{ 
+              1 == 2 ||
+              3 == 4
+          }}
+        run: echo "Test 2 should not be printed"
+      - name: Test 3 
+        if: ${{ 1 == 2 }}
+        run: echo "Test 3 should not be printed"
+      - name: Test 4 
+        if:   ${{ 1 == 2 }}
+        run: echo "Test 4 should not be printed"
+      - name: Test 5 
+        if: ${{ 
+              1 == 2 ||
+              3 == 4
+          }}
+        run: echo "Test 5 should not be printed"
+      - name: Test 6
+        if: ${{ 1 == 1 }} ${{ 1 == 2 }}
+        run: echo "Test 6 should not be printed"
+      - name: Test 7
+        run: echo "Test 7 should not be printed"
+        if: ${{ 
+              1 == 2 ||
+              3 == 4
+          }}
+          
+      - name: Test 8
+        run: echo "Test 8 should not be printed"
+        if: > 
+          ${{ 
+              1 == 2 ||
+              3 == 4 }}
+      - name: Test 9 
+        if:   '${{ 1 == 2  }}'
+        run: echo "Test 9 should not be printed"
+      - name: Test 10
+        if:   "${{1 == 2  }}"
+        run: echo "Test 10 should not be printed"
+      - name: Test 11
+        if:   " ${{ 1 == 2  }}"
+        run: echo "Test 11 should not be printed"
+      - name: Test 12
+        if:   " ${{ 1 == 2  }}"
+        run: echo "Test 12 should not be printed"
+      - name: Test 13
+        if: |
+          1 == 2 ||
+          3 == 4
+        run: echo "Test 13 should not be printed"
+      - name: Test 14
+        if: >-
+          ${{(
+            false || 1 == 2
+          )}}
+        run: echo "Test 14 should not be printed"
+      - name: Test 15
+        if: |-
+          ${{(
+            false || 1 == 2
+          )}}
+        run: echo "Test 15 should not be printed"
+      - name: Test 16
+        if: |+
+          ${{(
+            false || 1 == 2
+          )}}
+        run: echo "Test 16 should not be printed"
+      - name: Test 17
+        if: >+
+          ${{(
+            false || 1 == 2
+          )}}
+        run: echo "Test 17 should not be printed"
+      - name: Test 18
+        if: ${{ github.event_name }} == 'foo'
+        run: echo "Test 18 should not be printed"
+      - name: Test 19
+        if: ${{ contains(fromJSON('["OWNER", "MEMBER"]'), github.event.pull_request.author_association )}} || github.actor == 'renovate[bot]'
+        run: echo "Test 19 should not be printed"
+      - name: Test 20
+        if: ${{ hashFiles('./docker/Dockerfile.debian') }} != ""
+        run: echo "Test 20 should not be printed"
+      - name: Test 21
+        if: >
+          ${{ github.event.workflow_run.event == 'pull_request' &&
+          github.event.workflow_run.conclusion == 'success' }}
+        run: echo "Test 21 should not be printed"
+      - name: Test 22
+        if: |
+          runner.os == 'Windows' && (
+            startsWith(inputs.node, 'v10.') ||
+            startsWith(inputs.node, 'v12.') ||
+            startsWith(inputs.node, 'v14.')
+          )
+        run: echo "Test 22 should not be printed"
+  tojson-tests:
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - run: |
+          set -ex
+          wc -l <<EOF
+          ${{ toJSON(github.event) }}
+          EOF
+      - run: |
+          set -ex
+          wc -l  <<EOF
+          ${{ toJSON(github.event) }}
+          EOF
+  injection-tests:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: test
+        env: 
+          PAYLOAD: "GOO\nINJ1=PWNED"
+        run: |
+          echo "FOO1=$PAYLOAD" >> $GITHUB_ENV
+      - env:
+          PAYLOAD: "GOO\nINJ2=PWNED"
+        run: |
+          echo "FOO2=$PAYLOAD" >> $GITHUB_ENV
+      - env:
+          PAYLOAD: "GOO\nINJ3=PWNED"
+        run: |
+          echo "FOO3=${PAYLOAD}" >> $GITHUB_ENV
+      - env:
+          PAYLOAD: "GOO\nINJ4=PWNED"
+        name: NOT-EXPLOITABLE
+        run: |
+          echo FOO4=$(echo $PAYLOAD) >> $GITHUB_ENV
+      - env:
+          PAYLOAD: "GOO\nINJ41=PWNED"
+        name: NOT-EXPLOITABLE
+        run: |
+          echo FOO41="$(echo $PAYLOAD)" >> $GITHUB_ENV
+      - env:
+          PAYLOAD: "GOO\nEOF\nINJ5<<EOF\nPWNED"
+        run: |
+          echo "FOO5<<EOF" >> $GITHUB_ENV
+          echo "$PAYLOAD" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+      - env:
+          PAYLOAD: "GOO\nEOF\nINJ6<<EOF\nPWNED"
+        run: |
+          echo "FOO6<<EOF" >> "${GITHUB_ENV}"
+          echo "${PAYLOAD}" >> $GITHUB_ENV
+          echo "EOF" >> "${GITHUB_ENV}"
+      - env:
+          PAYLOAD: "GOO\nEOF\nINJ7<<EOF\nPWNED"
+        run: |
+          {
+            echo 'FOO7<<EOF'
+            echo "$PAYLOAD"
+            echo EOF
+          } >> "$GITHUB_ENV"
+      - run: |
+          set
+  injection-tests2:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: test
+        env: 
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+          PAYLOAD: |
+            FOO=GOO
+            PATH=PWNED:/bin:/usr/local/bin
+          PAYLOAD2: |
+            /bin/foo:/bin/bar
+          PAYLOAD3: |
+            /bin/baz
+        run: |
+          echo FOO=$PAYLOAD >> $GITHUB_ENV
+          echo "FOO2=$(echo $PAYLOAD)" >> $GITHUB_ENV
+          echo $PAYLOAD2 >> $GITHUB_PATH
+          echo "::add-path::$PAYLOAD3"
+          echo "${{ env.PAYLOAD }}" > $GITHUB_ENV
+      - run: |
+          echo FOO: $FOO
+          echo FOO2: $FOO2
+          echo BAR: $BAR
+          echo PATH: $PATH

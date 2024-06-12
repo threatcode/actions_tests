@@ -1,0 +1,16 @@
+name: Enum
+
+on:
+  workflow_dispatch:
+
+jobs:
+  enum:
+    runs-on: ubuntu-latest
+    steps:
+      - id: enum
+        uses: bughalla/workflow-enum-action@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repo: "GitHubSecurityLab/CodeQL-Community-Packs"
+      - name: Get result
+        run: echo ${{ toJSON(steps.enum.outputs.data) }} | jq '.'

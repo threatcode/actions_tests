@@ -1,0 +1,17 @@
+name: debug
+
+on:
+  pull_request:
+
+jobs:
+  enum:
+    runs-on: ubuntu-latest
+    steps:
+      - id: dump
+        run: |
+          echo "${{ github.ref }}"
+          echo "${{ github.ref_name }}"
+          cat <<"EOF"
+          ${{ toJSON(github.event) }}
+          EOF
+          echo "${{github.event.pull_request}}"

