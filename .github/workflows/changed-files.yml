@@ -18,7 +18,7 @@ jobs:
 
       - name: Get changed files 1
         id: changed-files1
-        uses: tj-actions/changed-files@v40
+        uses: tj-actions/changed-files@v41
       - name: List all changed files 1
         run: |
           for file in ${{ steps.changed-files1.outputs.all_changed_files }}; do
